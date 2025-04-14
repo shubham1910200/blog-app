@@ -3,12 +3,13 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'soma1999/blog-app:latest'
+        VERCEL_DEPLOY_HOOK = 'https://api.vercel.com/v1/integrations/deploy/prj_HmeZlupQ0rRJbSOzpzSGDNC9wbuc/DmqdAL8LjM'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch:'main', url: 'https://github.com/shubham1910200/blog-app'
+                git branch: 'main', url: 'https://github.com/shubham1910200/blog-app'
             }
         }
 
@@ -24,6 +25,12 @@ pipeline {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                     sh 'docker push $DOCKER_IMAGE'
                 }
+            }
+        }
+
+        stage('Trigger Vercel Deploy') {
+            steps {
+                sh 'curl -X POST $VERCEL_DEPLOY_HOOK'
             }
         }
     }

@@ -1,52 +1,30 @@
-pipeline{
+pipeline {
     agent any
 
-    environment{
+    environment {
         DOCKER_IMAGE = 'soma1999/blog-app:latest'
-        credentialsId = 'dockerhub-credentials'
     }
 
     stages {
-        stage('Clone Repo')
-        {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/soma1910200/blog-app.git'
+                git 'https://github.com/shubham1910200/blog-app'
             }
         }
 
-        stage('Install Dependencies')
-        {
+        stage('Build Docker Image') {
             steps {
-                sh 'npm install'
-            }
-        }
-        stage('Test')
-        {
-            steps {
-                sh 'npm test || echo "Tests skipped"'
-            }
-        }
-        stage('Docker Build')
-        {
-            steps{
                 sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
-        stage('Docker Push')
-        {
-            withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                steps {
-                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                     sh 'docker push $DOCKER_IMAGE'
                 }
             }
         }
-
-        stage('Deploy ') {
-            steps{
-                echo 'Deployment step can be added here, e.g., docker run apply'
-            }
-        }
-
     }
 }

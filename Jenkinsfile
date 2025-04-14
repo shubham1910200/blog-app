@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/shubham1910200/blog-app'
+                git branch:'main', url: 'https://github.com/shubham1910200/blog-app'
             }
         }
 
